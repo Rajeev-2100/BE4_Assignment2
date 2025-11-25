@@ -7,6 +7,7 @@ const Recipe = require('./model/recipe.model.js')
 const fs = require('fs')
 
 const { intailizeDatabase } = require('./db/db.connect.js')
+const { error } = require('console')
 
 intailizeDatabase()
 
@@ -94,6 +95,31 @@ app.get('/recipes/difficulty/:recipeLevel', async (req,res) => {
         res.status(500).json({error: 'Failed to fetch recipe details'})
     }
 })
+
+async function updateRecipeId(recipeId, dataToUpdate) {
+    try {
+        const book = await Recipe.findByIdAndUpdate(recipeId, dataToUpdate, {new: true})
+        return book 
+    } catch (error) {
+        throw error
+    }
+}
+
+app.post('/recipes/:recipeId', async (req,res) => {
+    try {
+        const updateRecipe = await updateRecipeId(req.params.bookId, req.body)
+       if(!updateRecipe){
+           res.status(404).json({ error: "Recipe not found" })
+        }else{
+            res.status(200).json({ message: "Recipe update successfully", recipe: updateRecipe })
+        }
+    } catch (error) {
+        console.error(error.message)
+        res.status(500).json({error: 'Failed to fetch book data'})
+    }
+})
+
+
 
 const PORT = 3000
 app.listen(PORT, () => {
