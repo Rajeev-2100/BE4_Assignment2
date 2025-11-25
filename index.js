@@ -73,6 +73,28 @@ app.get('/recipes/title/:recipeTitle', async (req,res) => {
 })
 
 
+async function readDetailByDifficulty (recipeLevel){
+    try {
+        const recipe = await Recipe.findOne({difficulty: recipeLevel})
+        return recipe
+    } catch (error) {
+        throw error
+    }
+}
+
+app.get('/recipes/difficulty/:recipeLevel', async (req,res) => {
+    try {
+        const recipe = await readDetailByDifficulty(req.params.recipeLevel)
+        if(!recipe){
+            res.status(400).json({error: 'Recipe not found'})
+        }
+        res.status(200).json({message: 'Recipe Data:', book: recipe})
+    } catch (error) {
+        console.error(error.message)
+        res.status(500).json({error: 'Failed to fetch recipe details'})
+    }
+})
+
 const PORT = 3000
 app.listen(PORT, () => {
     console.log('Server is running on this ', PORT)
