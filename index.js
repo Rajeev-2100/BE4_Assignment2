@@ -119,6 +119,51 @@ app.post('/recipes/:recipeId', async (req,res) => {
     }
 })
 
+async function updateRecipeId(recipeTitle, dataToUpdate) {
+    try {
+        const book = await Recipe.findOneAndUpdate({title: recipeTitle}, dataToUpdate, {new: true})
+        return book 
+    } catch (error) {
+        throw error
+    }
+}
+
+app.post('/recipes/title/:recipeTitle', async (req,res) => {
+    try {
+        const updateRecipe = await updateRecipeId(req.params.recipeTitle, req.body)
+       if(!updateRecipe){
+           res.status(404).json({ error: "Recipe not found" })
+        }else{
+            res.status(200).json({ message: "Recipe update successfully", recipe: updateRecipe })
+        }
+    } catch (error) {
+        console.error(error.message)
+        res.status(500).json({error: 'Failed to fetch book data'})
+    }
+})
+
+
+async function deleteRecipeByRecipeId(recipeId) {
+    try {
+        const book = await Recipe.findByIdAndDelete({_id: recipeId})
+        return book
+    } catch (error) {
+        throw error
+    }
+}
+
+app.delete('/recipes/:recipeId', async (req,res) => {
+    try {
+        const updateRecipe = await deleteRecipeByRecipeId(req.params.recipeId)
+        if(!updateRecipe){
+            res.status(404).json({error: 'Recipe not found'})
+            console.error(error.message)
+        }
+        res.status(200).json({message: 'Recipe data delete successfully', book: updateRecipe})
+    } catch (error) {
+        res.status(500).json({error : 'Failed to fetch Recipe Data'})
+    }
+})
 
 
 const PORT = 3000
